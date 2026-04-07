@@ -95,7 +95,7 @@ class GetFlangePoseNode(Node):
                 coord_string = response.value
                 pose_values = self.extract_pose_values(coord_string)
                 if pose_values:
-                    pose_values = np.asarray(pose_values)
+                    pose_values = np.asarray(pose_values).reshape(1, -1)
                     if self.flange_pose_values_list is None:
                         self.flange_pose_values_list = pose_values
                     else:
@@ -115,7 +115,7 @@ class GetFlangePoseNode(Node):
                 coord_string = response.value
                 pose_values = self.extract_pose_values(coord_string)
                 if pose_values:
-                    pose_values = np.asarray(pose_values)
+                    pose_values = np.asarray(pose_values).reshape(1, -1)
                     if self.tool_pose_values_list is None:
                         self.tool_pose_values_list = pose_values
                     else:
