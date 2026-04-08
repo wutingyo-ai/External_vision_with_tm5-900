@@ -1,4 +1,4 @@
-#!/home/lips/TM_ROS2_CONTROL/venv/bin/python3
+#!/usr/bin/env python3.8
 import re
 
 # from flask.config import T
@@ -168,48 +168,48 @@ def draw_coordinate(T):
     # 將單位從米轉換為毫米
     scale = 1000
     # 基座座標系的原點
-    flange_origin = np.array([0, 0, 0])
-
+    flange_origin = np.array([0, 0, 0])*scale
+    cam_origin = t_cam2flange.flatten() * scale
     # 繪製座標系
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
     # 繪製 flange 座標系 
     ax.quiver(flange_origin[0], flange_origin[1], flange_origin[2], 
-            1, 0, 0, color='r', label='Flange X', length=0.5)
+            1, 0, 0, color='r', label='Flange X', length=0.2*scale)
     ax.quiver(flange_origin[0], flange_origin[1], flange_origin[2], 
-            0, 1, 0, color='g', label='Flange Y', length=0.5)
+            0, 1, 0, color='g', label='Flange Y', length=0.2*scale)
     ax.quiver(flange_origin[0], flange_origin[1], flange_origin[2], 
-            0, 0, 1, color='b', label='Flange Z', length=0.5)
+            0, 0, 1, color='b', label='Flange Z', length=0.2*scale)
 
     # 繪製 cam 座標系
-    cam_origin = t_cam2flange
+    # cam_origin = t_cam2flange
     ax.quiver(cam_origin[0], cam_origin[1], cam_origin[2], 
             R_cam2flange[0, 0], R_cam2flange[1, 0], R_cam2flange[2, 0], 
-            color='c', label='Cam X', length=0.5)
+            color='c', label='Cam X', length=0.2*scale)
     ax.quiver(cam_origin[0], cam_origin[1], cam_origin[2], 
             R_cam2flange[0, 1], R_cam2flange[1, 1], R_cam2flange[2, 1], 
-            color='m', label='Cam Y', length=0.5)
+            color='m', label='Cam Y', length=0.2*scale)
     ax.quiver(cam_origin[0], cam_origin[1], cam_origin[2], 
             R_cam2flange[0, 2], R_cam2flange[1, 2], R_cam2flange[2, 2], 
-            color='y', label='Cam Z', length=0.5)
+            color='y', label='Cam Z', length=0.2*scale)
 
     # 設定圖形屬性
-    ax.set_xlabel('X axis')
-    ax.set_ylabel('Y axis')
-    ax.set_zlabel('Z axis')
+    ax.set_xlabel('X axis(mm)')
+    ax.set_ylabel('Y axis(mm)')
+    ax.set_zlabel('Z axis(mm)')
     ax.set_title('Base and Camera Coordinate Systems')
     ax.legend()
-    ax.set_xlim([-1, 1])
-    ax.set_ylim([-1, 1])
-    ax.set_zlim([-1, 1])
+    ax.set_xlim([-500, 500])
+    ax.set_ylim([-500, 500])
+    ax.set_zlim([-500, 500])
 
     plt.show()
 
 
 if __name__ == "__main__":
     index_first=0
-    index_last=5
+    index_last=6
     R_cam_matrix_list,t_cam_matrix_list = april_tag_detect(index_first,index_last)
     R_robot_matrix_list,t_robot_matrix_list = get_robot_pose_list(index_first,index_last)
     print(">>> R_robot_matrix_list:", len(R_robot_matrix_list), "R_cam_matrix_list:", len(R_cam_matrix_list))
