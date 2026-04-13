@@ -16,6 +16,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(tf2_eigen REQUIRED)
 find_package(Eigen3 REQUIRED) # 這是我們之前聊過的數學庫
+find_package(control_msgs REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -43,11 +44,23 @@ ament_target_dependencies(
   tf2_eigen
 )
 
+add_executable(keyboard_input src/keyboard_input.cpp)
+# 將所有 ROS 2 相關的功能包一次性掛載
+ament_target_dependencies(
+  keyboard_input
+  rclcpp
+  geometry_msgs
+  tf2_geometry_msgs
+  tf2_eigen
+  control_msgs
+)
+
 
 # 1. 整合 C++ 執行檔 (Targets)
 install(TARGETS 
   TM_control_node
   moveit_cpp_tutorial
+  keyboard_input
   DESTINATION lib/${PROJECT_NAME}
 )
 
@@ -58,6 +71,11 @@ install(PROGRAMS
   scripts/Send_simple_msg.py
   scripts/Get_Flange_and_Tool_Pose.py
   DESTINATION lib/${PROJECT_NAME}
+)
+# 安裝 launch 檔
+install(
+  DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}
 )
 
 # # 4. 安裝設定 (讓 ros2 run 能找到它)
