@@ -17,6 +17,7 @@ find_package(tf2_geometry_msgs REQUIRED)
 find_package(tf2_eigen REQUIRED)
 find_package(Eigen3 REQUIRED) # 這是我們之前聊過的數學庫
 find_package(control_msgs REQUIRED)
+find_package(std_srvs REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -53,6 +54,7 @@ ament_target_dependencies(
   tf2_geometry_msgs
   tf2_eigen
   control_msgs
+  std_srvs
 )
 
 
@@ -77,33 +79,5 @@ install(
   DIRECTORY launch
   DESTINATION share/${PROJECT_NAME}
 )
-
-# # 4. 安裝設定 (讓 ros2 run 能找到它)
-
-# install(TARGETS TM_control_node
-#   DESTINATION lib/${PROJECT_NAME})
-# install(TARGETS
-#   moveit_cpp_tutorial
-#   DESTINATION lib/${PROJECT_NAME}
-# )
-
-
-# # ===== Python node =====
-# install(PROGRAMS
-#   scripts/robot_move.py
-#   DESTINATION lib/${PROJECT_NAME}
-# )
-# install(PROGRAMS
-#   scripts/lips_camera_calibration_hand_eye.py
-#   DESTINATION lib/${PROJECT_NAME}
-# )
-# install(PROGRAMS
-#   scripts/Send_simple_msg.py
-#   DESTINATION lib/${PROJECT_NAME}
-# )
-# install(PROGRAMS
-#   scripts/Get_Flange_and_Tool_Pose.py
-#   DESTINATION lib/${PROJECT_NAME}
-# )
 
 ament_package()
