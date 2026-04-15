@@ -1,51 +1,27 @@
 /*********************************************************************
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2021, PickNik LLC
- *  All rights reserved.
- *
- *  Redistribution and use in source and binary forms, with or without
- *  modification, are permitted provided that the following conditions
- *  are met:
- *
- *   * Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *   * Redistributions in binary form must reproduce the above
- *     copyright notice, this list of conditions and the following
- *     disclaimer in the documentation and/or other materials provided
- *     with the distribution.
- *   * Neither the name of PickNik LLC nor the names of its
- *     contributors may be used to endorse or promote products derived
- *     from this software without specific prior written permission.
- *
- *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
- *  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- *  POSSIBILITY OF SUCH DAMAGE.
+ * Copyright (c) 2021, PickNik LLC
+ * All rights reserved.
  *********************************************************************/
 
-/*      Title     : servo_keyboard_input.cpp
- *      Project   : moveit2_tutorials
- *      Created   : 05/31/2021
- *      Author    : Adam Pettinger
+/* Title     : servo_keyboard_input.cpp
+ * Project   : moveit2_tutorials
+ * Created   : 05/31/2021
+ * Author    : Adam Pettinger
+ * Modified  : Added Start/Stop Service Clients for TM5-900
  */
 
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <control_msgs/msg/joint_jog.hpp>
+#include <std_srvs/srv/trigger.hpp>
 
 #include <signal.h>
 #include <stdio.h>
 #include <termios.h>
 #include <unistd.h>
+#include <chrono>
 
 // Define used keys
 #define KEYCODE_RIGHT 0x43
@@ -65,6 +41,8 @@
 #define KEYCODE_W 0x77
 #define KEYCODE_E 0x65
 #define KEYCODE_R 0x72
+#define KEYCODE_S 0x73  // Start Servo
+#define KEYCODE_T 0x74  // Stop Servo
 
 // Some constants used in the Servo Teleop demo
 const std::string TWIST_TOPIC = "/servo_node/delta_twist_cmds";
@@ -116,11 +94,15 @@ public:
 
 private:
   void spin();
+  void callServoControl(rclcpp::Client<std_srvs::srv::Trigger>::SharedPtr client);
 
   rclcpp::Node::SharedPtr nh_;
-
   rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr twist_pub_;
   rclcpp::Publisher<control_msgs::msg::JointJog>::SharedPtr joint_pub_;
+  
+  // Service Clients
+  rclcpp::Client<std_srvs::srv::Trigger>::SharedPtr start_client_;
+  rclcpp::Client<std_srvs::srv::Trigger>::SharedPtr stop_client_;
 
   std::string frame_to_publish_;
   double joint_vel_cmd_;
@@ -132,6 +114,20 @@ KeyboardServo::KeyboardServo() : frame_to_publish_(BASE_FRAME_ID), joint_vel_cmd
 
   twist_pub_ = nh_->create_publisher<geometry_msgs::msg::TwistStamped>(TWIST_TOPIC, ROS_QUEUE_SIZE);
   joint_pub_ = nh_->create_publisher<control_msgs::msg::JointJog>(JOINT_TOPIC, ROS_QUEUE_SIZE);
+
+  start_client_ = nh_->create_client<std_srvs::srv::Trigger>("/servo_node/start_servo");
+  stop_client_ = nh_->create_client<std_srvs::srv::Trigger>("/servo_node/stop_servo");
+}
+
+void KeyboardServo::callServoControl(rclcpp::Client<std_srvs::srv::Trigger>::SharedPtr client)
+{
+  if (!client->wait_for_service(std::chrono::seconds(1)))
+  {
+    RCLCPP_ERROR(nh_->get_logger(), "Servo service not available");
+    return;
+  }
+  auto request = std::make_shared<std_srvs::srv::Trigger::Request>();
+  client->async_send_request(request);
 }
 
 KeyboardReader input;
@@ -148,13 +144,10 @@ int main(int argc, char** argv)
 {
   rclcpp::init(argc, argv);
   KeyboardServo keyboard_servo;
-
   signal(SIGINT, quit);
-
   int rc = keyboard_servo.keyLoop();
   input.shutdown();
   rclcpp::shutdown();
-
   return rc;
 }
 
@@ -178,7 +171,8 @@ int KeyboardServo::keyLoop()
   puts("---------------------------");
   puts("Use arrow keys and the '.' and ';' keys to Cartesian jog");
   puts("Use 'W' to Cartesian jog in the world frame, and 'E' for the End-Effector frame");
-  puts("Use 1|2|3|4|5|6|7 keys to joint jog. 'R' to reverse the direction of jogging.");
+  puts("Use 1|2|3|4|5|6 keys to joint jog. 'R' to reverse the direction of jogging.");
+  puts("Use 'S' to START Servo, 'T' to STOP Servo.");
   puts("'Q' to quit.");
 
   for (;;)
@@ -204,107 +198,92 @@ int KeyboardServo::keyLoop()
     switch (c)
     {
       case KEYCODE_LEFT:
-        RCLCPP_DEBUG(nh_->get_logger(), "LEFT");
         twist_msg->twist.linear.y = -1.0;
         publish_twist = true;
         puts("LEFT");
         break;
       case KEYCODE_RIGHT:
-        RCLCPP_DEBUG(nh_->get_logger(), "RIGHT");
         twist_msg->twist.linear.y = 1.0;
         publish_twist = true;
         puts("RIGHT");
         break;
       case KEYCODE_UP:
-        RCLCPP_DEBUG(nh_->get_logger(), "UP");
         twist_msg->twist.linear.x = 1.0;
         publish_twist = true;
         puts("UP");
         break;
       case KEYCODE_DOWN:
-        RCLCPP_DEBUG(nh_->get_logger(), "DOWN");
         twist_msg->twist.linear.x = -1.0;
         publish_twist = true;
         puts("DOWN");
         break;
       case KEYCODE_PERIOD:
-        RCLCPP_DEBUG(nh_->get_logger(), "PERIOD");
         twist_msg->twist.linear.z = -1.0;
         publish_twist = true;
         puts("PERIOD");
         break;
       case KEYCODE_SEMICOLON:
-        RCLCPP_DEBUG(nh_->get_logger(), "SEMICOLON");
         twist_msg->twist.linear.z = 1.0;
         publish_twist = true;
         puts("SEMICOLON");
         break;
       case KEYCODE_E:
-        RCLCPP_DEBUG(nh_->get_logger(), "E");
         frame_to_publish_ = EEF_FRAME_ID;
-        puts("EEF_FRAME");
+        puts("EEF_FRAME (flange)");
         break;
       case KEYCODE_W:
-        RCLCPP_DEBUG(nh_->get_logger(), "W");
         frame_to_publish_ = BASE_FRAME_ID;
-        puts("WORLD_FRAME");
+        puts("WORLD_FRAME (base)");
         break;
       case KEYCODE_1:
-        RCLCPP_DEBUG(nh_->get_logger(), "1");
-        joint_msg->joint_names.push_back("link_1");
+        joint_msg->joint_names.push_back("joint_1");
         joint_msg->velocities.push_back(joint_vel_cmd_);
-        puts("JOINT 1");
         publish_joint = true;
+        puts("JOINT 1");
         break;
       case KEYCODE_2:
-        RCLCPP_DEBUG(nh_->get_logger(), "2");
-        joint_msg->joint_names.push_back("link_2");
+        joint_msg->joint_names.push_back("joint_2");
         joint_msg->velocities.push_back(joint_vel_cmd_);
-        puts("JOINT 2");
         publish_joint = true;
+        puts("JOINT 2");
         break;
       case KEYCODE_3:
-        RCLCPP_DEBUG(nh_->get_logger(), "3");
-        joint_msg->joint_names.push_back("link_3");
+        joint_msg->joint_names.push_back("joint_3");
         joint_msg->velocities.push_back(joint_vel_cmd_);
-        puts("JOINT 3");
         publish_joint = true;
+        puts("JOINT 3");
         break;
       case KEYCODE_4:
-        RCLCPP_DEBUG(nh_->get_logger(), "4");
-        joint_msg->joint_names.push_back("link_4");
+        joint_msg->joint_names.push_back("joint_4");
         joint_msg->velocities.push_back(joint_vel_cmd_);
-        puts("JOINT 4");
         publish_joint = true;
+        puts("JOINT 4");
         break;
       case KEYCODE_5:
-        RCLCPP_DEBUG(nh_->get_logger(), "5");
-        joint_msg->joint_names.push_back("link_5");
+        joint_msg->joint_names.push_back("joint_5");
         joint_msg->velocities.push_back(joint_vel_cmd_);
-        puts("JOINT 5");
         publish_joint = true;
+        puts("JOINT 5");
         break;
       case KEYCODE_6:
-        RCLCPP_DEBUG(nh_->get_logger(), "6");
-        joint_msg->joint_names.push_back("link_6");
+        joint_msg->joint_names.push_back("joint_6");
         joint_msg->velocities.push_back(joint_vel_cmd_);
-        puts("JOINT 6");
         publish_joint = true;
+        puts("JOINT 6");
         break;
-    //   case KEYCODE_7:
-    //     RCLCPP_DEBUG(nh_->get_logger(), "7");
-    //     joint_msg->joint_names.push_back("panda_joint7");
-    //     joint_msg->velocities.push_back(joint_vel_cmd_);
-    //     publish_joint = true;
-    //     break;
       case KEYCODE_R:
-        RCLCPP_DEBUG(nh_->get_logger(), "R");
         joint_vel_cmd_ *= -1;
         puts("JOINT VELOCITY REVERSED");
-
+        break;
+      case KEYCODE_S:
+        callServoControl(start_client_);
+        puts("SENT: SERVO START");
+        break;
+      case KEYCODE_T:
+        callServoControl(stop_client_);
+        puts("SENT: SERVO STOP");
         break;
       case KEYCODE_Q:
-        RCLCPP_DEBUG(nh_->get_logger(), "quit");
         puts("QUIT");
         return 0;
     }
@@ -325,6 +304,5 @@ int KeyboardServo::keyLoop()
       publish_joint = false;
     }
   }
-
   return 0;
 }
