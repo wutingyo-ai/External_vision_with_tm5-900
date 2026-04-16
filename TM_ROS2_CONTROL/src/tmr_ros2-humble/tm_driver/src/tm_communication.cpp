@@ -1,3 +1,4 @@
+/* --- 區塊 1：標頭檔與跨平台相容性設定 --- */
 #ifdef NO_INCLUDE_DIR
 #include "tm_communication.h"
 #include "tm_print.h"
@@ -7,7 +8,7 @@
 #endif
 
 #include <functional>
-
+// 根據作業系統載入不同的 Socket 函式庫
 #ifdef _WIN32
 // windows socket
 #pragma comment (lib, "Ws2_32.lib")
@@ -28,6 +29,9 @@
 
 //
 // TmSBuffer
+/* --- 區塊 2：TmSBuffer (資料流緩衝區) --- 
+   用途：處理網路傳輸中常見的「黏包」或資料不齊全問題。
+*/
 //
 
 class TmSBuffer
@@ -90,6 +94,9 @@ public:
 
 //
 // TmSvrCommRecv
+/* --- 區塊 3：TmCommRecv (接收執行器) --- 
+   用途：負責從 Socket 讀取原始資料。
+*/
 //
 
 class TmCommRecv
@@ -241,6 +248,7 @@ TmCommRC TmCommRecv::spin_once(int timeval_ms, int *n)
 
 //
 // TmCommunication
+/* --- 區塊 4：TmCommunication (核心通訊管理) --- */
 //
 
 TmCommunication::TmCommunication(const char *ip, unsigned short port, int recv_buf_len)
