@@ -137,7 +137,7 @@ std::string TmCommand::set_pvt_traj(const TmPvtTraj &pvts, int precision)
 	ss << "PVTExit()";
 	return ss.str();
 }
-
+// 連續速度模式 (Velocity Mode / Jogging)
 std::string TmCommand::set_vel_mode_start(VelMode mode, double timeout_zero_vel, double timeout_stop)
 {
 	if (mode == VelMode::Joint) {
@@ -149,7 +149,7 @@ std::string TmCommand::set_vel_mode_start(VelMode mode, double timeout_zero_vel,
 			std::to_string((int)(1000.0 * timeout_stop)) + ")";
 	}
 }
-
+// 更新目標速度 (Target)
 std::string TmCommand::set_vel_mode_target(VelMode mode, const std::vector<double> &vel, int precision)
 {
 	std::stringstream ss;
