@@ -85,7 +85,8 @@ joint_topic: /joint_states
 status_topic: ~/status  # Publish status to this topic
 
 # ⚠️ 這裡請確認你的 controller 名稱
-command_out_topic: /tmr_arm_controller/follow_joint_trajectory # Publish outgoing commands here
+# command_out_topic: /tmr_arm_controller/joint_trajectory  # Publish outgoing commands here
+command_out_topic: tmr_arm_controller/follow_joint_trajectory  # Publish outgoing commands here
 
 ###############################################
 # Collision checking
