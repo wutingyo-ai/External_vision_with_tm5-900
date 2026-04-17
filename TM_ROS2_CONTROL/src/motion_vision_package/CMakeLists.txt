@@ -18,6 +18,8 @@ find_package(tf2_eigen REQUIRED)
 find_package(Eigen3 REQUIRED) # 這是我們之前聊過的數學庫
 find_package(control_msgs REQUIRED)
 find_package(std_srvs REQUIRED)
+find_package(tm_msgs REQUIRED)
+find_package(trajectory_msgs REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -55,6 +57,21 @@ ament_target_dependencies(
   tf2_eigen
   control_msgs
   std_srvs
+  tm_msgs
+)
+
+add_executable(tm_pvt_bridge src/tm_pvt_bridge.cpp)
+# 將所有 ROS 2 相關的功能包一次性掛載
+ament_target_dependencies(
+  tm_pvt_bridge
+  rclcpp
+  geometry_msgs
+  tf2_geometry_msgs
+  tf2_eigen
+  control_msgs
+  std_srvs
+  tm_msgs
+  trajectory_msgs
 )
 
 
@@ -63,6 +80,7 @@ install(TARGETS
   TM_control_node
   moveit_cpp_tutorial
   keyboard_input
+  tm_pvt_bridge
   DESTINATION lib/${PROJECT_NAME}
 )
 
