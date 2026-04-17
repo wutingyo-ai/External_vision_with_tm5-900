@@ -63,7 +63,7 @@ def generate_launch_description():
     controller_path = 'config/moveit2_controllers.yaml'
     joint_limits_path = 'config/joint_limits.yaml'
         #servo parameters
-    servo_yaml = load_yaml(moveit_config_path, "config/servo.yaml")
+    servo_yaml = load_yaml(moveit_config_path, "config/servo_fake.yaml")
     servo_params = {"moveit_servo": servo_yaml}
     # MoveIt Configuration
     moveit_config = (
