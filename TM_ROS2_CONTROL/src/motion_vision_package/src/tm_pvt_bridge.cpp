@@ -16,6 +16,7 @@ public:
   }
 
 private:
+  int time_counter = 0;
   void trajectory_callback(const trajectory_msgs::msg::JointTrajectory::SharedPtr msg) {
     if (msg->points.empty()) return;
 
@@ -41,11 +42,13 @@ private:
     // 發送給 TM Driver
     send_to_tm(ss.str());
     puts((ss.str()).c_str());
+    // 在類別成員函式中這樣寫：
+    RCLCPP_INFO(this->get_logger(), "Count: %d, Data: %s", time_counter++, ss.str().c_str());
   }
 
   void send_to_tm(const std::string& script) {
     auto request = std::make_shared<tm_msgs::srv::SendScript::Request>();
-    request->id = "PVT_STREAM";
+    request->id = "PVTStream";
     request->script = script;
     // 使用非同步發送以確保不會卡住訂閱回呼
     client_->async_send_request(request);
@@ -64,6 +67,7 @@ int main(int argc, char ** argv)
   
   // 2. 開始運行 (呼叫)
   // spin 會讓節點開始監聽 Topic 並在有訊息時執行回呼函式
+  puts("TmPvtBridge node started. Listening for trajectory commands...");
   rclcpp::spin(node);
   
   rclcpp::shutdown();

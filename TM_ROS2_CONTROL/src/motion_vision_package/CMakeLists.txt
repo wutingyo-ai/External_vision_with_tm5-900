@@ -74,6 +74,19 @@ ament_target_dependencies(
   trajectory_msgs
 )
 
+add_executable(Joint_jog_test src/Joint_jog_test.cpp)
+# 將所有 ROS 2 相關的功能包一次性掛載
+ament_target_dependencies(
+  Joint_jog_test
+  rclcpp
+  geometry_msgs
+  tf2_geometry_msgs
+  tf2_eigen
+  control_msgs
+  std_srvs
+  tm_msgs
+)
+
 
 # 1. 整合 C++ 執行檔 (Targets)
 install(TARGETS 
@@ -81,6 +94,7 @@ install(TARGETS
   moveit_cpp_tutorial
   keyboard_input
   tm_pvt_bridge
+  Joint_jog_test
   DESTINATION lib/${PROJECT_NAME}
 )
 

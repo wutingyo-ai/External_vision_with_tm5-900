@@ -21,7 +21,7 @@ scale:
 ###############################################
 # Outgoing command
 ###############################################
-publish_period: 0.034    # 1/Nominal publish rate [seconds]
+publish_period: 0.5    # 1/Nominal publish rate [seconds]
 low_latency_mode: false  # Set this to true to publish as soon as an incoming Twist command is received (publish_period is ignored)
 
 # What type of topic does your robot driver expect?
@@ -65,7 +65,7 @@ robot_link_command_frame: base
 # Stop servoing if X seconds elapse without a new command
 # If 0, republish commands forever even if the robot is stationary. Otherwise, specify num. to publish.
 # Important because ROS may drop some messages and we need the robot to halt reliably.
-incoming_command_timeout: 0.1
+incoming_command_timeout: 0.5
 num_outgoing_halt_msgs_to_publish: 4
 
 ###############################################

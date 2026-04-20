@@ -95,7 +95,7 @@ public:
 private:
   void spin();
   void callServoControl(rclcpp::Client<std_srvs::srv::Trigger>::SharedPtr client);
-  void callTmPvtEnter_or_Exit(int mode,bool exit);
+  void callTmPvtEnter_or_Exit(bool exit);
 
   rclcpp::Node::SharedPtr nh_;
   rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr twist_pub_;
@@ -144,7 +144,7 @@ void KeyboardServo::callServoControl(rclcpp::Client<std_srvs::srv::Trigger>::Sha
 }
 
 // 新增此成員函式
-void KeyboardServo::callTmPvtEnter_or_Exit(int mode,bool exit=false)
+void KeyboardServo::callTmPvtEnter_or_Exit(bool exit=false)
 {
 
   if (!tm_script_client_->wait_for_service(std::chrono::seconds(1))) {
@@ -152,12 +152,12 @@ void KeyboardServo::callTmPvtEnter_or_Exit(int mode,bool exit=false)
     return;
   }
   auto request = std::make_shared<tm_msgs::srv::SendScript::Request>();
-  request->id = "PVT_INIT";
+  request->id = "PVTEnterExit";
 
     // 根據 mode 發送指令：0 -> Joint, 1 -> Cartesian
   if (!exit)
   {
-    request->script = (mode == 0) ? "PVTEnter(0)" : "PVTEnter(1)";
+    request->script = "PVTEnter(0)" ;
   }
   else
   {    
@@ -241,37 +241,32 @@ int KeyboardServo::keyLoop()
     { 
       
       case KEYCODE_LEFT:
-        current_mode_ = 1;
+        
         twist_msg->twist.linear.y = -1.0;
         publish_twist = true;
         puts("LEFT");
         break;
       case KEYCODE_RIGHT:
-        current_mode_ = 1;
         twist_msg->twist.linear.y = 1.0;
         publish_twist = true;
         puts("RIGHT");
         break;
       case KEYCODE_UP:
-        current_mode_ = 1;
         twist_msg->twist.linear.x = 1.0;
         publish_twist = true;
         puts("UP");
         break;
       case KEYCODE_DOWN:
-        current_mode_ = 1;
         twist_msg->twist.linear.x = -1.0;
         publish_twist = true;
         puts("DOWN");
         break;
       case KEYCODE_PERIOD:
-        current_mode_ = 1;
         twist_msg->twist.linear.z = -1.0;
         publish_twist = true;
         puts("PERIOD");
         break;
       case KEYCODE_SEMICOLON:
-        current_mode_ = 1;
         twist_msg->twist.linear.z = 1.0;
         publish_twist = true;
         puts("SEMICOLON");
@@ -285,42 +280,36 @@ int KeyboardServo::keyLoop()
         puts("WORLD_FRAME (base)");
         break;
       case KEYCODE_1:
-        current_mode_ = 0;
         joint_msg->joint_names.push_back("joint_1");
         joint_msg->velocities.push_back(joint_vel_cmd_);
         publish_joint = true;
         puts("JOINT 1");
         break;
       case KEYCODE_2:
-        current_mode_ = 0;
         joint_msg->joint_names.push_back("joint_2");
         joint_msg->velocities.push_back(joint_vel_cmd_);
         publish_joint = true;
         puts("JOINT 2");
         break;
       case KEYCODE_3:
-        current_mode_ = 0;
         joint_msg->joint_names.push_back("joint_3");
         joint_msg->velocities.push_back(joint_vel_cmd_);
         publish_joint = true;
         puts("JOINT 3");
         break;
       case KEYCODE_4:
-        current_mode_ = 0;
         joint_msg->joint_names.push_back("joint_4");
         joint_msg->velocities.push_back(joint_vel_cmd_);
         publish_joint = true;
         puts("JOINT 4");
         break;
       case KEYCODE_5:
-        current_mode_ = 0;
         joint_msg->joint_names.push_back("joint_5");
         joint_msg->velocities.push_back(joint_vel_cmd_);
         publish_joint = true;
         puts("JOINT 5");
         break;
       case KEYCODE_6:
-        current_mode_ = 0;
         joint_msg->joint_names.push_back("joint_6");
         joint_msg->velocities.push_back(joint_vel_cmd_);
         publish_joint = true;
@@ -332,13 +321,13 @@ int KeyboardServo::keyLoop()
         break;
       case KEYCODE_S:
         callServoControl(start_client_);
-        callTmPvtEnter_or_Exit(current_mode_);
-        puts(current_mode_ == 0 ? "SENT: SERVO START (JOINT PVT)" : "SENT: SERVO START (CARTESIAN PVT)");
+        callTmPvtEnter_or_Exit();
+        
         puts("SENT: SERVO START");
         break;
       case KEYCODE_T:
         callServoControl(stop_client_);
-        callTmPvtEnter_or_Exit(current_mode_, true);
+        callTmPvtEnter_or_Exit(true);
         puts("SENT: SERVO STOP");
         break;
       case KEYCODE_Q:
