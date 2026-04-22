@@ -87,6 +87,16 @@ ament_target_dependencies(
   tm_msgs
 )
 
+add_executable(manual_send_script src/manual_send_script.cpp)
+# 將所有 ROS 2 相關的功能包一次性掛載
+ament_target_dependencies(
+  manual_send_script
+  rclcpp
+  geometry_msgs
+  std_srvs
+  tm_msgs
+)
+
 
 # 1. 整合 C++ 執行檔 (Targets)
 install(TARGETS 
@@ -95,6 +105,7 @@ install(TARGETS
   keyboard_input
   tm_pvt_bridge
   Joint_jog_test
+  manual_send_script
   DESTINATION lib/${PROJECT_NAME}
 )
 
