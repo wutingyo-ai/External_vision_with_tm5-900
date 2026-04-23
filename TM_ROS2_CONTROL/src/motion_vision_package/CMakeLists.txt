@@ -20,20 +20,20 @@ find_package(control_msgs REQUIRED)
 find_package(std_srvs REQUIRED)
 find_package(tm_msgs REQUIRED)
 find_package(trajectory_msgs REQUIRED)
+# find_package(tm_driver REQUIRED)
+
+
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
 
+include_directories(include
+  # ${CMAKE_CURRENT_SOURCE_DIR}
+  /home/dennis_wu/my_workspace/src/tmr_ros2-humble/tm_driver/include
+)
 
-# 1. node1: TM_control_node (C++)
-add_executable(TM_control_node src/TM_control_node.cpp)
-target_include_directories(TM_control_node PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
-target_compile_features(TM_control_node PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
-
-# 2. node2: moveit_cpp_tutorial (C++)
+#
 add_executable(moveit_cpp_tutorial src/moveit_cpp_tutorial.cpp)
 # 將所有 ROS 2 相關的功能包一次性掛載
 ament_target_dependencies(
@@ -97,15 +97,31 @@ ament_target_dependencies(
   tm_msgs
 )
 
+add_executable(pvt_synchronization src/pvt_synchronization.cpp
+/home/dennis_wu/my_workspace/src/tmr_ros2-humble/tm_driver/src/tm_command.cpp)
+ament_target_dependencies(
+  pvt_synchronization
+  rclcpp
+  geometry_msgs
+  tf2_geometry_msgs
+  tf2_eigen
+  control_msgs
+  std_srvs
+  tm_msgs
+  # tm_driver
+)
+
+
+
 
 # 1. 整合 C++ 執行檔 (Targets)
 install(TARGETS 
-  TM_control_node
   moveit_cpp_tutorial
   keyboard_input
   tm_pvt_bridge
   Joint_jog_test
   manual_send_script
+  pvt_synchronization
   DESTINATION lib/${PROJECT_NAME}
 )
 
