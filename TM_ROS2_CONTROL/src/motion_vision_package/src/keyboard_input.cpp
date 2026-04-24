@@ -117,7 +117,7 @@ private:
 
 
 
-KeyboardServo::KeyboardServo() : frame_to_publish_(BASE_FRAME_ID), joint_vel_cmd_(1.0)
+KeyboardServo::KeyboardServo() : frame_to_publish_(BASE_FRAME_ID), joint_vel_cmd_(20*M_PI/180.0) // 20 deg/s 轉換為 rad/s
 {
   nh_ = rclcpp::Node::make_shared("servo_keyboard_input");
   
@@ -242,78 +242,92 @@ int KeyboardServo::keyLoop()
       
       case KEYCODE_LEFT:
         
-        twist_msg->twist.linear.y = -1.0;
+        twist_msg->twist.linear.y = -0.08;
         publish_twist = true;
         puts("LEFT");
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         break;
       case KEYCODE_RIGHT:
-        twist_msg->twist.linear.y = 1.0;
+        twist_msg->twist.linear.y = 0.08;
         publish_twist = true;
         puts("RIGHT");
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         break;
       case KEYCODE_UP:
-        twist_msg->twist.linear.x = 1.0;
+        twist_msg->twist.linear.x = 0.08;
         publish_twist = true;
         puts("UP");
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         break;
       case KEYCODE_DOWN:
-        twist_msg->twist.linear.x = -1.0;
+        twist_msg->twist.linear.x = -0.08;
         publish_twist = true;
         puts("DOWN");
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         break;
       case KEYCODE_PERIOD:
-        twist_msg->twist.linear.z = -1.0;
+        twist_msg->twist.linear.z = -0.08;
         publish_twist = true;
         puts("PERIOD");
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         break;
       case KEYCODE_SEMICOLON:
-        twist_msg->twist.linear.z = 1.0;
+        twist_msg->twist.linear.z = 0.08;
         publish_twist = true;
         puts("SEMICOLON");
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         break;
       case KEYCODE_E:
         frame_to_publish_ = EEF_FRAME_ID;
         puts("EEF_FRAME (flange)");
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         break;
       case KEYCODE_W:
         frame_to_publish_ = BASE_FRAME_ID;
         puts("WORLD_FRAME (base)");
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         break;
       case KEYCODE_1:
         joint_msg->joint_names.push_back("joint_1");
         joint_msg->velocities.push_back(joint_vel_cmd_);
         publish_joint = true;
         puts("JOINT 1");
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         break;
       case KEYCODE_2:
         joint_msg->joint_names.push_back("joint_2");
         joint_msg->velocities.push_back(joint_vel_cmd_);
         publish_joint = true;
         puts("JOINT 2");
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         break;
       case KEYCODE_3:
         joint_msg->joint_names.push_back("joint_3");
         joint_msg->velocities.push_back(joint_vel_cmd_);
         publish_joint = true;
         puts("JOINT 3");
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         break;
       case KEYCODE_4:
         joint_msg->joint_names.push_back("joint_4");
         joint_msg->velocities.push_back(joint_vel_cmd_);
         publish_joint = true;
         puts("JOINT 4");
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         break;
       case KEYCODE_5:
         joint_msg->joint_names.push_back("joint_5");
         joint_msg->velocities.push_back(joint_vel_cmd_);
         publish_joint = true;
         puts("JOINT 5");
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         break;
       case KEYCODE_6:
         joint_msg->joint_names.push_back("joint_6");
         joint_msg->velocities.push_back(joint_vel_cmd_);
         publish_joint = true;
         puts("JOINT 6");
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         break;
       case KEYCODE_R:
         joint_vel_cmd_ *= -1;
