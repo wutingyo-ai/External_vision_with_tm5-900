@@ -86,7 +86,8 @@ private:
     }
 
     std::string calculate_next_step_batch(int batch_size = 3)
-    {
+    {   double total_batch_time = dt_ * batch_size;
+        last_planned_time_ = this->get_clock()->now() + rclcpp::Duration::from_seconds(total_batch_time);
         std::string full_script = "";
         char buf[512];
 
@@ -126,8 +127,7 @@ private:
             }
             // --- 修改點：紀錄最後一個點的資訊 ---
             // 預期到達時間 = 現在 + (單點時間 * 總點數)
-            double total_batch_time = dt_ * batch_size;
-            last_planned_time_ = this->get_clock()->now() + rclcpp::Duration::from_seconds(total_batch_time);
+            
             // last_planned_time_ = this->get_clock()->now();
             last_planned_pos_ = current_pos_; // 這已經是迴圈跑完後的最後位置
             is_planned_ = true;

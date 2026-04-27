@@ -17,7 +17,7 @@ from moveit_configs_utils import MoveItConfigsBuilder
 # from launch_param_builder import ParameterBuilder
 import xacro
 import yaml
-
+from launch.actions import ExecuteProcess
 
 def load_file(package_name, file_path):
     package_path = get_package_share_directory(package_name)
@@ -98,7 +98,7 @@ def generate_launch_description():
 
     # Trajectory Execution Configuration
     # Controllers
-    controllers_yaml = load_yaml(moveit_config_path, 'config/controllers.yaml')
+    controllers_yaml = load_yaml(moveit_config_path, 'config/controllers_servo.yaml')
     moveit_controllers = {'moveit_simple_controller_manager': controllers_yaml, 'moveit_controller_manager': 'moveit_simple_controller_manager/MoveItSimpleControllerManager'}
 
     # Trajectory Execution Functionality
@@ -208,6 +208,19 @@ def generate_launch_description():
         emulate_tty=True,
         arguments=args
     )
+
+    # # 推薦寫法
+    # load_joint_state_broadcaster = Node(
+    #     package="controller_manager",
+    #     executable="spawner",
+    #     arguments=["joint_state_broadcaster"],
+    # )
+
+    # load_tmr_arm_controller = Node(
+    # package="controller_manager",
+    # executable="spawner",
+    # arguments=["tmr_arm_controller"],
+    # )
 
     # Launching all the nodes
     return LaunchDescription(
