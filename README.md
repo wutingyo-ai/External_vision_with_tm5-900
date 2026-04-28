@@ -19,3 +19,4 @@
 
 # 機械手臂伺服運動方法
 > 透過達明腳本語言 Script Language 的PVT(Position-Velocity-Time)模式控制路徑軌跡
+> ros2中使用send script來做發送
