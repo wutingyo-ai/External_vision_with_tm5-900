@@ -10,7 +10,8 @@
 ### 啟用方式 
 >1. 確認網路有pin到達明手臂就可，不需要進listen node
 >2. 編譯完整個motion_vision_package後使用ros2 run 同時開啟A、B、C。
->3. C程式會需要輸入字串，擺好apriltag移動手臂使影像映入相機後，就可輸入"ok"並按enter發送，A、B程式便會紀錄在motion_vision_package/tag_detect_image、motion_vision_package/eye_hand_calibration_data之中。
+>3. C程式會需要輸入字串，擺好apriltag移動手臂使影像映入相機後，就可輸入"ok"並按enter發送，A、B程式便會紀錄在motion_vision_package/tag_detect_image、motion_vision_package/eye_hand_calibration_data之中，完成之後要輸入"finish"結束紀錄手臂姿態，不可中斷拍攝或紀錄，預設希望流程一次到位。
+>4. 至少拍攝3~5張影像後 可使用程式D去做矩陣求解，要輸入影像多張以及手臂姿態的csv檔案，輸出為4*4轉移矩陣。
 
 ### !注意
 >- april tag的姿態要有適當平移與旋轉，但也不可過於奇異，求出之解才會準，否則誤差會很大。
