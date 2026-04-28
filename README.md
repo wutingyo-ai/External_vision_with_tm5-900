@@ -16,3 +16,6 @@
 >- april tag的姿態要有適當平移與旋轉，但也不可過於奇異，求出之解才會準，否則誤差會很大。
 >- eye to hand 部分只有流程邏輯，細部細節尚未修改
 >- AE相機連線部分需設定
+
+# 機械手臂伺服運動方法
+> 透過達明腳本語言 Script Language 的PVT(Position-Velocity-Time)模式控制路徑軌跡
