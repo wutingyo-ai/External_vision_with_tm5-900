@@ -1,4 +1,4 @@
-# __TM ROS Driver__
+# TM ROS Driver
 
 ## __1. Overview__
 
